@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Game Over Exercise</title>
+  <link href="css/game.css" rel="stylesheet" />
+  <script src="game.js"></script>
+  <script src="levels.js"></script>
+</head>
+
+<body>
+  <script>
+    // The old runGame function. Modify it...
+    async function runGame(plans, Display) {
+      let lives = 3;
+      for (let level = 0; level < plans.length;) {
+        console.log(`You have ${lives} ${lives > 1 ? 'lives' : 'life'} ❤️`);
+        const status = await runLevel(new Level(plans[level]), Display);
+        if (status === 'won') level += 1;
+        else if (status === 'lost') {
+          lives -= 1;
+          if (lives === 0) {
+            console.log('GAME OVER');
+            level = 0;
+            lives = 3;
+          }
+        }
+      }
+      console.log("You've won!");
+    }
+    runGame(GAME_LEVELS, DOMDisplay);
+  </script>
+</body>
+
+</html>
