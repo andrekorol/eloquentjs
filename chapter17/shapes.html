@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Shapes Exercise</title>
+  </head>
+
+  <body>
+    <canvas width="600" height="200"></canvas>
+    <!-- prettier-ignore -->
+    <script>
+      const cx = document.querySelector('canvas').getContext('2d');
+
+      // x = 50, y = 25 (center)
+      function trapezoid(x, y, size) {
+        cx.beginPath();
+        cx.moveTo(x - size, 2 * y);
+        cx.lineTo(2 * size, size);
+        cx.lineTo(2 * size - size / 2, y - size / 2);
+        cx.lineTo(size / 2, size - 2 * y);
+        cx.lineTo(x - size, 2 * y);
+        // cx.closePath();
+        cx.stroke();
+      }
+      trapezoid(50, 25, 50);
+
+      // x = 150, y = 25 (center)
+      function diamond(x, y, size) {
+        cx.save();
+        cx.fillStyle = 'red';
+        cx.translate(x, y);
+        cx.rotate(Math.PI / 4);
+        cx.translate(-x, -y);
+        cx.fillRect(x, y, size, size);
+        cx.restore();
+      }
+      diamond(150, 0, 50);
+
+      function zigzag(x, y, size, lineSep, numPoints) {
+        cx.moveTo(x, y);
+        let newY = y + lineSep;
+        for (let point = 0; point < numPoints; point++) {
+          cx.lineTo(point % 2 ? x : x + size, newY);
+          newY += lineSep;
+        }
+        cx.stroke();
+      }
+      zigzag(200, 0, 75, 7, 12);
+
+      function spiral(x, y, initialAngle, angleStep, radiusStep, numPoints) {
+        cx.moveTo(x, y);
+        let radius = 1;
+        let angle = initialAngle;
+        for (let point = 0; point < numPoints; point++) {
+          cx.lineTo(
+      Math.sin(angle * Math.PI) * radius + x,
+      Math.cos(angle * Math.PI) * radius + y
+    );
+          angle += angleStep;
+          radius += radiusStep;
+  }
+        cx.stroke();
+      }
+      spiral(350, 50, Math.PI, 0.06, 0.5, 100);
+
+      function star(x, y, radius, numPoints, color) {
+        const sliceAngle = (2 * Math.PI) / numPoints;
+        let currentAngle = 0;
+        cx.beginPath();
+        cx.moveTo(x, y);
+        for (let point = 0; point <= numPoints; point++) {
+          cx.quadraticCurveTo(
+      x,
+      y,
+      radius * Math.sin(currentAngle) + x,
+      radius * Math.cos(currentAngle) + y
+    );
+          currentAngle += sliceAngle;
+        }
+        cx.closePath();
+        cx.fillStyle = color;
+        cx.fill();
+      }
+      star(450, 50, 50, 8, 'orange');
+    </script>
+  </body>
+</html>

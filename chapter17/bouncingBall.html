@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>A Bouncing Ball Exercise</title>
+</head>
+
+<body>
+  <canvas width="400" height="400"></canvas>
+  <script>
+    class Vec {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+
+      plus(other) {
+        return new Vec(this.x + other.x, this.y + other.y);
+      }
+
+      times(factor) {
+        return new Vec(this.x * factor, this.y * factor);
+      }
+    }
+
+    const cx = document.querySelector('canvas').getContext('2d');
+
+    let lastTime = null;
+
+    function frame(time) {
+      if (lastTime != null) {
+        updateAnimation(Math.min(100, time - lastTime) / 1000);
+      }
+      lastTime = time;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    // set constants
+    const boxSize = 400;
+    cx.strokeStyle = 'crimson';
+    cx.lineWidth = 10;
+    const ballRadius = 50;
+    cx.fillStyle = 'dodgerblue';
+    const lowerLimit = cx.lineWidth / 2 + ballRadius;
+    const upperLimit = boxSize - ballRadius - cx.lineWidth / 2;
+
+    // set initial ball position and speed
+    let ballPos = new Vec(200, 200);
+    let ballSpeed = new Vec(70, 90);
+
+    function draw() {
+      // draw the box
+      cx.strokeRect(0, 0, boxSize, boxSize);
+
+      // draw the ball
+      cx.beginPath();
+      cx.arc(ballPos.x, ballPos.y, ballRadius, 0, 7);
+      cx.closePath();
+      cx.fill();
+    }
+    draw();
+
+    function updateAnimation(step) {
+      // find new ball speed and position
+      let newPosX = ballPos.x + ballSpeed.x * step;
+      let newPosY = ballPos.y + ballSpeed.y * step;
+
+      let newSpeedX;
+      if (newPosX <= lowerLimit) {
+        newPosX = lowerLimit;
+        newSpeedX = -ballSpeed.x;
+      } else if (newPosX >= upperLimit) {
+        newPosX = upperLimit;
+        newSpeedX = -ballSpeed.x;
+      } else {
+        newSpeedX = ballSpeed.x;
+      }
+
+      let newSpeedY;
+      if (newPosY <= lowerLimit) {
+        newPosY = lowerLimit;
+        newSpeedY = -ballSpeed.y;
+      } else if (newPosY >= upperLimit) {
+        newPosY = upperLimit;
+        newSpeedY = -ballSpeed.y;
+      } else {
+        newSpeedY = ballSpeed.y;
+      }
+
+      ballPos = new Vec(newPosX, newPosY);
+      ballSpeed = new Vec(newSpeedX, newSpeedY);
+
+      cx.clearRect(0, 0, boxSize, boxSize);
+      draw();
+    }
+  </script>
+</body>
+
+</html>
