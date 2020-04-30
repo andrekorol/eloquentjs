@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Conway's Game of Life Exercise</title>
+</head>
+
+<body>
+  <div id="grid"></div>
+  <button id="next">Next generation</button>
+
+  <script>
+    class Matrix {
+      constructor(width, height, element = (x, y) => undefined) {
+        this.width = width;
+        this.height = height;
+        this.content = [];
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            this.content[y * width + x] = element(x, y);
+          }
+        }
+      }
+
+      get(x, y) {
+        return this.content[y * this.width + x];
+      }
+
+      set(x, y, value) {
+        this.content[y * this.width + x] = value;
+      }
+    }
+
+    class MatrixIterator {
+      constructor(matrix) {
+        this.x = 0;
+        this.y = 0;
+        this.matrix = matrix;
+      }
+
+      next() {
+        if (this.y === this.matrix.height)
+          return {
+            done: true,
+          };
+
+        const value = {
+          x: this.x,
+          y: this.y,
+          value: this.matrix.get(this.x, this.y),
+        };
+        this.x += 1;
+        if (this.x === this.matrix.width) {
+          this.x = 0;
+          this.y += 1;
+        }
+        return {
+          value,
+          done: false,
+        };
+      }
+    }
+
+    Matrix.prototype[Symbol.iterator] = function () {
+      return new MatrixIterator(this);
+    };
+
+    const grid = document.getElementById('grid');
+    const nextButton = document.getElementById('next');
+
+    const gridSize = 9;
+
+    let gridboxTable;
+
+    function getCheckBoxElement() {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      return checkbox;
+    }
+
+    function randomCheckBox() {
+      // return randomly checked checkbox element
+      const checked = Math.floor(Math.random() * Math.floor(2));
+      const checkbox = getCheckBoxElement();
+      checkbox.checked = checked;
+      return checkbox;
+    }
+
+    function drawGrid(gridMatrix) {
+      // Remove previous table
+      if (grid.contains(gridboxTable)) {
+        grid.removeChild(gridboxTable);
+      }
+      gridboxTable = grid.appendChild(document.createElement('table'));
+      let tableRow;
+      let tableElement;
+      for (const {
+          x,
+          y,
+          value
+        } of gridMatrix) {
+        if (x === 0) {
+          tableRow = gridboxTable.appendChild(document.createElement('tr'));
+        }
+        tableElement = tableRow.appendChild(document.createElement('td'));
+        tableElement.appendChild(value);
+      }
+    }
+
+    function countLiveNeighbors(matrix, x, y) {
+      let counter = 0;
+      const lowerLimit = 0;
+      const upperLimit = gridSize - 1;
+
+      // check left adjacent cell
+      if (x > lowerLimit) {
+        counter += matrix.content[y * gridSize + x - 1].checked;
+      }
+
+      // check right adjacent cell
+      if (x < upperLimit) {
+        counter += matrix.content[y * gridSize + x + 1].checked;
+      }
+
+      // check top adjacent cell
+      if (y > lowerLimit) {
+        counter += matrix.content[(y - 1) * gridSize + x].checked;
+      }
+
+      // check bottom adjacent cell
+      if (y < upperLimit) {
+        counter += matrix.content[(y + 1) * gridSize + x].checked;
+      }
+
+      // check top-left adjacent cell
+      if (x > lowerLimit && y > lowerLimit) {
+        counter += matrix.content[(y - 1) * gridSize + x - 1].checked;
+      }
+
+      // check top-right adjacent cell
+      if (x < upperLimit && y > lowerLimit) {
+        counter += matrix.content[(y - 1) * gridSize + x + 1].checked;
+      }
+
+      // check bottom-left adjacent cell
+      if (x > lowerLimit && y < upperLimit) {
+        counter += matrix.content[(y + 1) * gridSize + x - 1].checked;
+      }
+
+      // check bottom-right adjacent cell
+      if (x < upperLimit && y < upperLimit) {
+        counter += matrix.content[(y + 1) * gridSize + x + 1].checked;
+      }
+
+      return counter;
+    }
+
+    function nextGeneration(matrix) {
+      const nextMatrix = new Matrix(gridSize, gridSize, getCheckBoxElement);
+
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const isAlive = matrix.content[y * gridSize + x].checked;
+          const liveNeighbors = countLiveNeighbors(matrix, x, y);
+
+          if (isAlive) {
+            if (liveNeighbors < 2 || liveNeighbors > 3) {
+              // Any live cell with fewer than two or more than three live
+              // neighbors dies
+              nextMatrix.content[y * gridSize + x].checked = false;
+            } else {
+              // Any live cell with two or three live neighbors lives
+              // on to the next generation
+              nextMatrix.content[y * gridSize + x].checked = true;
+            }
+          } else if (liveNeighbors === 3) {
+            // Any dead cell with exactly three live neighbors
+            // becomes a live cell
+            nextMatrix.content[y * gridSize + x].checked = true;
+          } else {
+            nextMatrix.content[y * gridSize + x].checked = false;
+          }
+        }
+      }
+
+      return nextMatrix;
+    }
+
+    // Initially draw the grid of checkboxes
+    let currentMatrix = new Matrix(gridSize, gridSize, randomCheckBox);
+    drawGrid(currentMatrix);
+
+    nextButton.addEventListener('click', () => {
+      currentMatrix = nextGeneration(currentMatrix);
+      drawGrid(currentMatrix);
+    });
+  </script>
+</body>
+
+</html>

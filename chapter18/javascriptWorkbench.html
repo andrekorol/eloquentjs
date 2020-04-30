@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>A JavaScript Workbench Exercise</title>
+</head>
+
+<body>
+  <textarea id="code">return "hi";</textarea>
+  <button id="button">Run</button>
+  <pre id="output"></pre>
+
+  <script>
+    const code = document.querySelector('#code');
+    const button = document.querySelector('#button');
+    const output = document.querySelector('#output');
+
+    button.addEventListener('click', () => {
+      let outputText;
+      try {
+        const fun = new Function(code.value);
+        outputText = document.createTextNode(`${fun()}\n`);
+      } catch (e) {
+        outputText = document.createTextNode(`${e.message}\n`);
+      }
+      output.appendChild(outputText);
+    });
+  </script>
+</body>
+
+</html>
